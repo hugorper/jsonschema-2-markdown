@@ -1,12 +1,3 @@
-var coreSchemaTypes = [
-	'array',
-	'boolean',
-	'integer',
-	'number',
-	'null',
-	'object',
-	'string'
-]
 function generateElementTitle(octothorpes, elementName, elementType, isRequired, isEnum, example) {
 	var text = [ octothorpes ]
 	if(elementName) {
