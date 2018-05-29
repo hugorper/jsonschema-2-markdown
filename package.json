@@ -1,0 +1,30 @@
+{
+  "name": "jsonschema-2-markdown",
+  "version": "0.1.0",
+  "description": "Generate markdown file from a JSON Schema with simple output template configuration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hugorper/jsonschema-2-markdown"
+  },
+  "keywords": [
+    "json",
+    "json-schema",
+    "jsonschema",
+    "template",
+    "markdown"
+  ],
+  "author": "hugorper",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/hugorper/jsonschema-2-markdown/issues"
+  },
+  "homepage": "https://github.com/hugorper/jsonschema-2-markdown",
+  "devDependencies": {
+    "is-my-json-valid": "^2.13.1",
+    "tape": "^4.0.0"
+  }
+}
