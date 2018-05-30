@@ -1,5 +1,5 @@
-function generateElementTitle(octothorpes, elementName, elementType, isRequired, isEnum, example) {
-	var text = [ octothorpes ]
+const generateElementTitle = function (headerTagLevel, elementName, elementType, isRequired, isEnum, example) {
+	var text = [ headerTagLevel ]
 	if(elementName) {
 		text.push(' `' + elementName + '`')
 	}
@@ -22,7 +22,7 @@ function generateElementTitle(octothorpes, elementName, elementType, isRequired,
 	return text.join('')
 }
 
-function generatePropertyRestrictions(schema) {
+const generatePropertyRestrictions = function (schema) {
 	var generate = generateSinglePropertyRestriction(schema)
 	return [
 		generate('minimum', 'Minimum'),
@@ -35,7 +35,7 @@ function generatePropertyRestrictions(schema) {
 	}).join('\n')
 }
 
-function generateSinglePropertyRestriction(schema) {
+const generateSinglePropertyRestriction = function (schema) {
 	return function(key, text) {
 		if (schema[key]) {
 			return '* ' + text + ': `' + schema[key] + '`'
@@ -45,18 +45,18 @@ function generateSinglePropertyRestriction(schema) {
 	}
 }
 
-function generateSchemaSectionText(octothorpes, name, isRequired, schema, subSchemas) {
+const generateSchemaSectionText = function (headerTagLevel, name, isRequired, schema, subSchemas) {
 	var schemaType = getActualType(schema, subSchemas)
 
 	var text = [
-		generateElementTitle(octothorpes, name, schemaType, isRequired, schema.enum, schema.example),
+		generateElementTitle(headerTagLevel, name, schemaType, isRequired, schema.enum, schema.example),
 		schema.description
 	]
 
 	if (schemaType === 'object') {
 		if (schema.properties) {
 			text.push('Properties of the `' + name + '` object:')
-			generatePropertySection(octothorpes, schema, subSchemas).forEach(function(section) {
+			generatePropertySection(headerTagLevel, schema, subSchemas).forEach(function(section) {
 				text = text.concat(section)
 			})
 		}
@@ -90,14 +90,14 @@ function generateSchemaSectionText(octothorpes, name, isRequired, schema, subSch
 
 			if (validationItems.length > 0) {
 				validationItems.forEach(function(item) {
-					text = text.concat(generateSchemaSectionText(octothorpes, undefined, false, item, subSchemas))
+					text = text.concat(generateSchemaSectionText(headerTagLevel, undefined, false, item, subSchemas))
 				})
 			}
 		}
 
 		if (itemsType === 'object') {
 			text.push('The array object has the following properties:')
-			generatePropertySection(octothorpes, schema.items, subSchemas).forEach(function(section) {
+			generatePropertySection(headerTagLevel, schema.items, subSchemas).forEach(function(section) {
 				text = text.concat(section)
 			})
 		}
@@ -134,11 +134,11 @@ function generateSchemaSectionText(octothorpes, name, isRequired, schema, subSch
 	return text
 }
 
-function generatePropertySection(octothorpes, schema, subSchemas) {
+const generatePropertySection = function (headerTagLevel, schema, subSchemas) {
 	if (schema.properties) {
 		return Object.keys(schema.properties).map(function(propertyKey) {
 			var propertyIsRequired = schema.required && schema.required.indexOf(propertyKey) >= 0
-			return generateSchemaSectionText(octothorpes + '#', propertyKey, propertyIsRequired, schema.properties[propertyKey], subSchemas)
+			return generateSchemaSectionText(headerTagLevel + '#', propertyKey, propertyIsRequired, schema.properties[propertyKey], subSchemas)
 		})
 	} else if (schema.oneOf) {
 		var oneOfList = schema.oneOf.map(function(innerSchema) {
@@ -151,7 +151,7 @@ function generatePropertySection(octothorpes, schema, subSchemas) {
 	}
 }
 
-function getActualType(schema, subSchemas) {
+const getActualType = function (schema, subSchemas) {
 	if (schema.type) {
 		return schema.type
 	} else if (schema['$ref'] && subSchemas[schema['$ref']]) {
@@ -161,30 +161,66 @@ function getActualType(schema, subSchemas) {
 	}
 }
 
-module.exports = function(schema, startingOctothorpes) {
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
+const defaultDocumentTemplate = '{{content}}';
+
+var templateVariable = {
+	title: "{{title}}",
+	type: "{{type}}",
+	description: "{{description}}",
+	content: "{{content}}"
+};
+
+var templateOptions = {
+	documentTemplate: defaultDocumentTemplate
+};
+
+
+/**
+ * Convert json-schema to markdown
+ * 
+ * @param  {} schema 	Schema object
+ * @param  {} templates Template option to format markdown output
+ * 
+ */
+module.exports = function(schema, templates) {
 	var subSchemaTypes = Object.keys(schema.definitions || {}).reduce(function(map, subSchemaTypeName) {
 		map['#/definitions/' + subSchemaTypeName] = subSchemaTypeName
 		return map
 	}, {})
-
+	
 	var text = []
-	var octothorpes = startingOctothorpes || ''
+
+	var headerTagLevel = '';
+
+	// if new template provided replace default
+	if (templates) {
+		templateOptions = templates;
+	}
 
 	if (schema.title) {
-		octothorpes += '#'
-		text.push(octothorpes + ' ' + schema.title)
+		templateOptions.documentTemplate = templateOptions.documentTemplate.replaceAll(templateVariable.title, schema.title);
+
+		headerTagLevel += '#'
+		text.push(headerTagLevel + ' ' + schema.title)
 	}
 
 	if (schema.type === 'object') {
+		templateOptions.documentTemplate = templateOptions.documentTemplate.replaceAll(templateVariable.type, schema.type);
 		if (schema.description) {
+			templateOptions.documentTemplate = templateOptions.documentTemplate.replaceAll(templateVariable.description, schema.description);
 			text.push(schema.description)
 		}
 		text.push('The schema defines the following properties:')
-		generatePropertySection(octothorpes, schema, subSchemaTypes).forEach(function(section) {
+		generatePropertySection(headerTagLevel, schema, subSchemaTypes).forEach(function(section) {
 			text = text.concat(section)
 		})
 	} else {
-		text = text.concat(generateSchemaSectionText('#' + octothorpes, undefined, false, schema, subSchemaTypes));
+		text = text.concat(generateSchemaSectionText('#' + headerTagLevel, undefined, false, schema, subSchemaTypes));
 	}
 
 	if (schema.definitions) {
@@ -205,7 +241,11 @@ module.exports = function(schema, startingOctothorpes) {
 		})
 	}
 
-	return text.filter(function(line) {
+	var fullText = text.filter(function(line) {
 		return !!line
-	}).join('\n\n')
+	}).join('\n\n');
+
+	return templateOptions.documentTemplate.replaceAll(templateVariable.content, fullText);
+
+
 }

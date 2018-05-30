@@ -10,5 +10,11 @@
             "name": "Lancer le programme",
             "program": "${workspaceFolder}\\test\\test.js"
         }
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Lancer test template",
+            "program": "${workspaceFolder}\\test-template.js"
+        }        
     ]
 }

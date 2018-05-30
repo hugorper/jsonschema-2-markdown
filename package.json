@@ -1,6 +1,6 @@
 {
   "name": "jsonschema-2-markdown",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Generate markdown file from a JSON Schema with simple output template configuration.",
   "main": "index.js",
   "scripts": {

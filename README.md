@@ -19,7 +19,6 @@ $ npm install jsonschema-2-markdown
 
 ## Simple usage
 
-
 ```js
   var jsonObject = {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -49,11 +48,35 @@ $ npm install jsonschema-2-markdown
       "dependencies": {
           "post-office-box": ["street-address"],
       }
-  }
+  };
 
 
-var json2md = require('jsonschema-2-markdown')
-var markdown = json2md(jsonObject)
+var json2md = require('jsonschema-2-markdown');
+var markdown = json2md(jsonObject);
+```
+
+## Usage with markdown simple template
+
+```js
+  var jsonObject = ...
+
+var json2md = require('jsonschema-2-markdown');
+
+const content = `
+title: {{title}}
+type: {{type}}
+description: {{description}}
+{{content}}
+---
+`;
+
+var template = {
+	documentTemplate: content
+};
+
+
+var markdown = json2md(jsonObject, template);
+
 ```
 
 ## Tests
