@@ -6,34 +6,118 @@ const jsonSchema2Md = require('./')
 
 
 var jsonObject = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "An small Address",
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Hotel Schema",
     "type": "object",
     "properties": {
-        "post-office-box": {
+      "@context": {
+        "type": "string"
+      },
+      "@type": {
+        "type": "string"
+      },
+      "image": {
+        "type": "string"
+      },
+      "starRating": {
+        "type": "object",
+        "properties": {
+          "@type": {
             "type": "string"
+          },
+          "ratingValue": {
+            "type": "string"
+          }
         },
-        "street-address": {
+        "required": [
+          "@type",
+          "ratingValue"
+        ]
+      },
+      "priceRange": {
+        "type": "string"
+      },
+      "address": {
+        "type": "object",
+        "properties": {
+          "@type": {
             "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "addressLocality": {
+            "type": "string"
+          },
+          "addressRegion": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "addressCountry": {
+            "type": "string"
+          }
         },
-        "locality": {
+        "required": [
+          "@type",
+          "streetAddress",
+          "addressLocality",
+          "addressRegion",
+          "postalCode",
+          "addressCountry"
+        ]
+      },
+      "description": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "alternateName": {
+        "type": "string"
+      },
+      "logo": {
+        "type": "string"
+      },
+      "telephone": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string"
+      },
+      "url": {
+        "type": "string"
+      },
+      "sameAs": {
+        "type": "array",
+        "items": [
+          {
             "type": "string"
-        },
-        "region": {
+          },
+          {
             "type": "string"
-        },
-        "postal-code": {
-            "type": "string"
-        },
-        "country-name": {
-            "type": "string"
-        }
+          }
+        ]
+      }
     },
-    "required": ["locality", "region", "country-name"],
-    "dependencies": {
-        "post-office-box": ["street-address"],
-    }
-};
+    "required": [
+      "@context",
+      "@type",
+      "image",
+      "starRating",
+      "priceRange",
+      "address",
+      "description",
+      "name",
+      "alternateName",
+      "logo",
+      "telephone",
+      "email",
+      "url",
+      "sameAs"
+    ]
+  };
 
 const content = `
 title: {{title}}
